@@ -285,8 +285,6 @@
 
     <!-- SAĞ SÜTUN -->
     <div class="right-column">
-   
-
       <div class="grid-container">
         <div class="grid">
           <div class="cell" data-cell-id="1"></div>
@@ -320,7 +318,9 @@
     document.querySelectorAll('.draggable-item').forEach(item => {
       item.addEventListener('dragstart', (e) => {
         draggedItem = item;
+        // bazı tarayıcılarda drag & drop'un çalışması için setData zorunlu
         e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData('text/plain', item.dataset.itemId || ''); // ← eklendi
         resultEl.textContent = "";
         resultEl.className = 'result';
       });
@@ -340,7 +340,8 @@
         cell.classList.remove('highlight');
       });
 
-      cell.addEventListener('drop', () => {
+      cell.addEventListener('drop', (e) => {   // ← e parametresi eklendi
+        e.preventDefault();                    // ← eklendi
         cell.classList.remove('highlight');
         if (!draggedItem) return;
 
@@ -356,7 +357,8 @@
       e.preventDefault();
     });
 
-    palette.addEventListener('drop', () => {
+    palette.addEventListener('drop', (e) => {   // ← e parametresi eklendi
+      e.preventDefault();                       // ← eklendi
       if (!draggedItem) return;
       palette.appendChild(draggedItem);
     });
