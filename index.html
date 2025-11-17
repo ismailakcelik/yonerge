@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Şehirde Mekânlar – 3x3 Sürükle Bırak</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f8;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .page {
+      display: flex;
+      gap: 24px;
+      width: 100%;
+      max-width: 1100px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    /* SOL TARAF: YÖN ÇUBUĞU + YÖNERGELER + PALETTE */
+    .left-panel {
+      flex: 1 1 320px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 16px 18px;
+    }
+
+    .left-panel h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    .compass-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .compass-wrapper img {
+      max-width: 220px;
+      height: auto;
+      display: block;
+    }
+
+    .instructions {
+      font-size: 15px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .instructions ul {
+      padding-left: 20px;
+      margin: 0;
+    }
+
+    /* SAĞ TARAF: OYUN ALANI */
+    .right-panel {
+      flex: 1 1 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 4px;
+      text-align: center;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      background: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .cell {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      background-color: #fafafa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .cell.highlight {
+      border-color: #007bff;
+      background-color: #eaf3ff;
+    }
+
+    .palette {
+      background: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    /* Genel draggable stil */
+    .draggable-item {
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: grab;
+      border: 1px solid #ddd;
+      background-color: #fdfdfd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Paletteyken küçük görünmesi için */
+    .palette .draggable-item {
+      width: 90px;
+      height: 90px;
+    }
+
+    /* Karelerin içindeyken kutuyu tamamen doldursun */
+    .grid .draggable-item {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 6px;
+    }
+
+    .draggable-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: #007bff;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .result {
+      text-align: center;
+      font-size: 14px;
+      min-height: 1.2em;
+    }
+
+    .result.success {
+      color: #198754;
+      font-weight: bold;
+    }
+
+    .result.error {
+      color: #dc3545;
+      font-weight: bold;
+    }
+
+    @media (max-width: 800px) {
+      .page {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- SOL PANEL -->
+    <div class="left-panel">
+      <h2>Yönergeyi Oku, Yerleştir</h2>
+      <div class="compass-wrapper">
+        <!-- YÖN RESMİ: kendi dosya adına göre src'yi değiştir -->
+        <img src="https://raw.githubusercontent.com/ismailakcelik/images/main/pictures/Yon.png" alt="Yön Çizelgesi">
+      </div>
+      <div class="instructions">
+        <ul>
+          <li>Hastane tam merkezdedir.</li>
+          <li>Manav, hastanenin doğusundadır.</li>
+          <li>Oyun parkı, hastanenin kuzeybatısındadır.</li>
+          <li>Okul, manavın güneyindedir.</li>
+          <li>Cami, hastanenin güneybatısındadır.</li>
+          <li>Kasap, hastanenin kuzeyindedir.</li>
+          <li>Alparslan'ın evi, oyun parkının güneyindedir.</li>
+          <li>Kırtasiye, manavın kuzeyindedir.</li>
+          <li>Market, hastanenin güneyindedir.</li>
+        </ul>
+      </div>
+
+      <!-- YÖNERGELERİN ALTINDA SÜRÜKLE-BIRAK PALETİ -->
+      <div class="palette" id="palette">
+        <div class="draggable-item" draggable="true" data-item-id="Camii">
+          <img src="https://raw.githubusercontent.com/ismailakcelik/images/main/pictures/Camii.png" alt="Camii">
+        </div>
+
+        <div class="draggable-item" draggable="true" data-item-id="Ev">
+          <img src="https://raw.githubusercontent.com/ismailakcelik/images/main/pictures/Ev.png" alt="Ev">
+        </div>
+
+        <div class="draggable-item" draggable="true" data-item-id="Hastane">
+          <img src="https://raw.githubusercontent.com/ismailakcelik/images/main/pictures/Hastane.png" alt="Hastane">
+        </div>
+
+        <div class="draggable-item" draggable="true" data-item-id="Kasap">
+          <img src="https://raw.githubusercontent.com/ismailakcelik/images/main/pictures/Kasap.png" alt="Kasap">
+        </div>
+
+        <div class="draggable-item" draggable="true" data-item-id="Kırtasiye">
+          <img src="https://raw.githubusercontent.com/ismailakcelik/images/main/pictures/Kırtasiye.png" alt="Kırtasiye">
+        </div>
+
+        <div class="draggable-item" draggable="true" data-item-id="Manav">
+          <img src="https://raw.githubusercontent.com/ismailakcelik/images/main/pictures/Manav.png" alt="Manav">
+        </div>
+
+        <div class="draggable-item" draggable="true" data-item-id="Market">
+          <img src="https://raw.githubusercontent.com/ismailakcelik/images/main/pictures/Market.png" alt="Market">
+        </div>
+
+        <div class="draggable-item" draggable="true" data-item-id="Okul">
+          <img src="https://raw.githubusercontent.com/ismailakcelik/images/main/pictures/Okul.png" alt="Okul">
+        </div>
+
+        <div class="draggable-item" draggable="true" data-item-id="Park">
+          <img src="https://raw.githubusercontent.com/ismailakcelik/images/main/pictures/Park.png" alt="Park">
+        </div>
+      </div>
+    </div>
+
+    <!-- SAĞ PANEL -->
+    <div class="right-panel">
+      <h1>Şehirde Mekânlar – 3x3 Sürükle Bırak Oyunu</h1>
+
+      <div class="container">
+        <!-- 3x3 KARE ALAN -->
+        <div class="grid">
+          <div class="cell" data-cell-id="1"></div>
+          <div class="cell" data-cell-id="2"></div>
+          <div class="cell" data-cell-id="3"></div>
+          <div class="cell" data-cell-id="4"></div>
+          <div class="cell" data-cell-id="5"></div>
+          <div class="cell" data-cell-id="6"></div>
+          <div class="cell" data-cell-id="7"></div>
+          <div class="cell" data-cell-id="8"></div>
+          <div class="cell" data-cell-id="9"></div>
+        </div>
+
+        <div class="controls">
+          <button class="btn-secondary" id="resetBtn">Sıfırla</button>
+          <button class="btn-primary" id="checkBtn">Kontrol Et</button>
+        </div>
+
+        <div class="result" id="result"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let draggedItem = null;
+
+    const cells = document.querySelectorAll('.cell');
+    const palette = document.getElementById('palette');
+    const resultEl = document.getElementById('result');
+
+    document.querySelectorAll('.draggable-item').forEach(item => {
+      item.addEventListener('dragstart', (e) => {
+        draggedItem = item;
+        e.dataTransfer.effectAllowed = "move";
+        resultEl.textContent = "";
+        resultEl.className = 'result';
+      });
+
+      item.addEventListener('dragend', () => {
+        draggedItem = null;
+      });
+    });
+
+    cells.forEach(cell => {
+      cell.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        cell.classList.add('highlight');
+      });
+
+      cell.addEventListener('dragleave', () => {
+        cell.classList.remove('highlight');
+      });
+
+      cell.addEventListener('drop', () => {
+        cell.classList.remove('highlight');
+        if (!draggedItem) return;
+
+        const existing = cell.querySelector('.draggable-item');
+        if (existing) {
+          palette.appendChild(existing);
+        }
+
+        cell.appendChild(draggedItem);
+      });
+    });
+
+    palette.addEventListener('dragover', (e) => {
+      e.preventDefault();
+    });
+
+    palette.addEventListener('drop', () => {
+      if (!draggedItem) return;
+      palette.appendChild(draggedItem);
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      document.querySelectorAll('.draggable-item').forEach(item => {
+        palette.appendChild(item);
+      });
+      resultEl.textContent = "";
+      resultEl.className = 'result';
+    });
+
+    const correctMap = {
+      1: 'Market',
+      2: 'Kasap',
+      3: 'Park',
+      4: 'Camii',
+      5: 'Hastane',
+      6: 'Manav',
+      7: 'Ev',
+      8: 'Okul',
+      9: 'Kırtasiye'
+    };
+
+    document.getElementById('checkBtn').addEventListener('click', () => {
+      let correct = 0;
+      let filled = 0;
+
+      cells.forEach(cell => {
+        const id = cell.getAttribute('data-cell-id');
+        const item = cell.querySelector('.draggable-item');
+
+        if (item) {
+          filled++;
+          if (item.getAttribute('data-item-id') === correctMap[id]) {
+            correct++;
+          }
+        }
+      });
+
+      if (filled < 9) {
+        resultEl.textContent = `Tüm kareler dolu değil (${filled}/9).`;
+        resultEl.className = 'result error';
+      } else if (correct === 9) {
+        resultEl.textContent = "Tebrikler! Hepsi doğru.";
+        resultEl.className = 'result success';
+      } else {
+        resultEl.textContent = `Bazıları yanlış. Doğru sayısı: ${correct}/9`;
+        resultEl.className = 'result error';
+      }
+    });
+  </script>
+</body>
+</html>
