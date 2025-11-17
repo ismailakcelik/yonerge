@@ -8,23 +8,19 @@
       font-family: Arial, sans-serif;
       background: #f4f4f8;
       margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
+      padding: 20px 40px;  /* kenarlardan boşluk */
     }
 
     .page {
       display: flex;
       gap: 24px;
-      width: 100%;
-      max-width: 1100px;
+      width: 100%;          /* tam genişlik */
       align-items: flex-start;
-      flex-wrap: wrap;
     }
 
     /* SOL TARAF: YÖN ÇUBUĞU + YÖNERGELER + PALETTE */
     .left-panel {
-      flex: 1 1 320px;
+      flex: 1 1 0;          /* kalan alanı kapla */
       background: #ffffff;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -44,7 +40,7 @@
     }
 
     .compass-wrapper img {
-      max-width: 100px;
+      max-width: 100px;   /* senin ayarın */
       height: auto;
       display: block;
     }
@@ -62,7 +58,8 @@
 
     /* SAĞ TARAF: OYUN ALANI */
     .right-panel {
-      flex: 1 1 360px;
+      flex: 0 0 420px;      /* sabit genişlik, kareler aynı boyutta kalsın */
+      margin-left: auto;    /* sağa yasla */
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -132,7 +129,7 @@
       justify-content: center;
     }
 
-    /* Paletteyken küçük görünmesi için */
+    /* Paletteyken küçük görünmesi için (senin ayarın) */
     .palette .draggable-item {
       width: 50px;
       height: 50px;
@@ -195,10 +192,18 @@
       font-weight: bold;
     }
 
-    @media (max-width: 800px) {
+    /* Dar ekran için alt alta gelsin */
+    @media (max-width: 900px) {
+      body {
+        padding: 10px;
+      }
       .page {
         flex-direction: column;
         align-items: stretch;
+      }
+      .right-panel {
+        flex: 1 1 auto;
+        margin-left: 0;
       }
     }
   </style>
